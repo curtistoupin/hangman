@@ -6,3 +6,5 @@ Created on Fri Sep 11 22:50:06 2020
 """
 
 test 123
+
+curtis stuff
