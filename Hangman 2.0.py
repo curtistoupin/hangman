@@ -23,13 +23,19 @@ def is_word_guessed(secret_word,letters_guessed):
 def get_guessed_word(secret_word,letters_guessed):
     alphabet = ''
     for i in secret_word:
-        for j in letters_guessed: #CT 2020-09-12 this loop can be replaced by a check for "if i in letters_guessed:"
-            if i == j:            #KJ No it can't. Because if the secret_word has multiple occurences of the same letter, it only does the 1st occurence of the letter and finishes.
-                alphabet += i
-                break
+        if i in letters_guessed:
+            alphabet += i
         else:
-            alphabet += " _ " #CT 2020-09-12 this will put two spaces between consecutive underscores, you might want to consider changing to " _"
-    return alphabet           #KJ I don;t like this. Because when there is a correct letter beside a letter not guessed yet, there is no space. Example: _ _ _ _p _p
+            alphabet += "_" 
+    #CT 2020-09-12 this will put two spaces between consecutive underscores, you might want to consider changing to " _"
+    #KJ I don;t like this. Because when there is a correct letter beside a letter not guessed yet, there is no space. Example: _ _ _ _p _p
+        #CT 2020-09-12 good point. but this way there's no space between correctly guessed letters but two spaces between consecutive underscores
+        # eg: l _ ll _  _  _  _
+        #might be better to not put any spaces next to the underscore, and add a space at the end of each loop. I've made this change, 
+        #feel free to change it back if you don't like it but this gets exactly one space between each character, eg: _ o _ _ i p _ p
+        alphabet += ' '
+    alphabet = alphabet[:-1] #This removes the last space that will be left at the end of the word after the loop
+    return alphabet           
     
 
 def get_available_letters(letters_guessed):
@@ -37,10 +43,11 @@ def get_available_letters(letters_guessed):
     for i in letters_guessed: # Details on the .pop() method: https://www.geeksforgeeks.org/python-list-pop/ - the .pop() method removes a chosen member of a list and returns that member so that you could, for example, append it to antoher list
         letters_remaining.remove(i) #i.e. letters_guessed.append(letters_remaining.pop('a')) will remove the letter 'a' from letters_remaining and add it to letters_guessed
     return(''.join(letters_remaining))   #KJ I can't figure out how to do this, without having to edit a lot of my code below.
+    #CT you can actually eliminate this function altogether if you do what i'm suggesting, as the list will be automatically maintained as the game progresses to there will be no need to generate the reamining letters
     
 
 def unique_letters(secret_word):
-    return len(unique_secret_word)
+    return len(unique_secret_word) #CT 2020-09-12 i think you want set(secret_word) here. unique_secret_word isn't defined in this context
 
 
 print("--------------------------------------------------------")
@@ -48,7 +55,7 @@ print("Welcome to the game Hangman!")
 print("I am thinking of a secret word that is",len(secret_word),"letters long.")
 print("You have",number_guesses,"guesses.")
 print("You have",warnings,"warnings.")
-print("Available letters:",get_available_letters(letters_guessed))
+print("Available letters:", ''.join(remaining_letters)) #get_available_letters(letters_guessed))
 
 while number_guesses > 0:
     guess = (str(input("Please guess a letter: ")))
@@ -56,8 +63,9 @@ while number_guesses > 0:
         guess = guess.lower()
     print("")
     
-    if guess in get_available_letters(letters_guessed):
+    if guess in letters_remaining:#get_available_letters(letters_guessed):
         letters_guessed += guess
+        letters_remaining.remove(guess)
    
         if guess in secret_word:
             print("--------------------------------------------------------")
@@ -72,7 +80,7 @@ while number_guesses > 0:
                 
             else:
                 print("You have",number_guesses,"guesses left.")
-                print("Available letters:",get_available_letters(letters_guessed))
+                print("Available letters:", ''.join(remaining_letters))#get_available_letters(letters_guessed))
                 
         else:
             if guess in vowels:
@@ -84,7 +92,7 @@ while number_guesses > 0:
             print(get_guessed_word(secret_word,letters_guessed))
             print("You have",number_guesses,"guesses left.")
             print("You have",warnings,"warnings left.")
-            print("Available letters:",get_available_letters(letters_guessed))
+            print("Available letters:", ''.join(remaining_letters)) #get_available_letters(letters_guessed))
      
     else:
         if warnings > 0:
@@ -99,7 +107,7 @@ while number_guesses > 0:
             print("Hey dumby, that's not a valid letter.")
         print("You have",number_guesses,"guesses left.")
         print("You have",warnings,"warnings left.")
-        print("Available letters:",get_available_letters(letters_guessed))
+        print("Available letters:", ''.join(remaining_letters))#get_available_letters(letters_guessed))
         
 else:
     print("Well. You officially suck at Hangman. The secret word was",secret_word)
